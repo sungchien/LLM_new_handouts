@@ -1,0 +1,57 @@
+{
+  "topics": [
+    {
+      "topic_id": "minimum_wage",
+      "topic_name": "最低工資法修法與青年就業",
+      "keywords_zh": [
+        "最低工資法",
+        "基本工資",
+        "青年失業率",
+        "CPI通膨"
+      ],
+      "keywords_en": [
+        "Minimum Wage Law",
+        "Youth Unemployment",
+        "Basic Wage",
+        "CPI Inflation"
+      ],
+      "status": "active",
+      "last_tracked_at": "2026-08-25 10:00:00"
+    },
+    {
+      "topic_id": "genai_hss",
+      "topic_name": "生成式 AI 對人文社會學科就業影響",
+      "keywords_zh": [
+        "生成式AI",
+        "人文社會學科",
+        "文社科就業",
+        "AI代工化"
+      ],
+      "keywords_en": [
+        "Generative AI",
+        "Humanities and Social Sciences",
+        "HSS Employment",
+        "AI Labor Displacement"
+      ],
+      "status": "active",
+      "last_tracked_at": "2026-08-22 14:30:00"
+    },
+    {
+      "topic_id": "housing_policy",
+      "topic_name": "社會住宅政策與青年居住正義",
+      "keywords_zh": [
+        "社會住宅",
+        "租金補貼",
+        "居住正義",
+        "囤房稅"
+      ],
+      "keywords_en": [
+        "Social Housing",
+        "Rent Subsidy",
+        "Housing Justice"
+      ],
+      "status": "paused",
+      "last_tracked_at": "2026-08-15 10:00:00"
+    }
+  ]
+}
