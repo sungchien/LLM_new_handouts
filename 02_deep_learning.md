@@ -10,8 +10,34 @@ puppeteer:
     right: "1.5cm"
 ---
 <style>
-  h2 {
-    page-break-before: always;
+  /* 全域字型、字級與行距 */
+  body {
+    font-size: 16pt !important;
+    line-height: 1.7 !important;
+    font-family: "Microsoft JhengHei", "PingFang TC", "Helvetica Neue", sans-serif;
+  }
+
+  /* 階層標題微調 */
+  h1 { font-size: 30pt !important; margin-bottom: 0.5em !important; }
+  h2 { font-size: 24pt !important; page-break-before: always; }
+  h3 { font-size: 20pt !important; }
+  h4 { font-size: 18pt !important; }
+
+  /* 表格文字放大與排版優化 */
+  table, th, td {
+    font-size: 15pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* 程式碼區塊 */
+  pre, code {
+    font-size: 15pt !important;
+    font-family: Consolas, "Courier New", monospace !important;
+  }
+
+  /* Mermaid 流程圖節點字體放大 */
+  .mermaid text {
+    font-size: 14px !important;
   }
 </style>
 ---
