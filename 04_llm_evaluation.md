@@ -1,19 +1,50 @@
 ---
 puppeteer:
   displayHeaderFooter: true
-  headerTemplate: '<div style="font-size: 10px; margin: 0 auto;">第四章：當代百模大戰與主流 LLM 評估與選型策略</div>'
-  footerTemplate: '<div style="font-size: 10px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
+  scale: 1.15
+  headerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第四週：利用 CSS 賦予網頁外觀</div>'
+  footerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
   margin:
     top: "1.5cm"
     bottom: "1.5cm"
     left: "1.5cm"
     right: "1.5cm"
 ---
+
 <style>
-  h2 {
-    page-break-before: always;
+  /* 全域字型、字級與行距 */
+  body {
+    font-size: 16pt !important;
+    line-height: 1.7 !important;
+    font-family: "Microsoft JhengHei", "PingFang TC", "Helvetica Neue", sans-serif;
+  }
+
+  /* 階層標題微調 */
+  h1 { font-size: 30pt !important; margin-bottom: 0.5em !important; }
+  h2 { font-size: 24pt !important; page-break-before: always; }
+  h3 { font-size: 20pt !important; }
+  h4 { font-size: 18pt !important; }
+
+  /* 表格文字放大與排版優化 */
+  table, th, td {
+    font-size: 15pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* 程式碼區塊 (自動換行防止 PDF 截斷) */
+  pre, code {
+    font-size: 13pt !important;
+    font-family: Consolas, "Courier New", monospace !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+  }
+
+  /* Mermaid 流程圖節點字體放大 */
+  .mermaid text {
+    font-size: 14px !important;
   }
 </style>
+
 ---
 
 # 第四章：當代百模大戰與主流 LLM 評估與選型策略
@@ -32,14 +63,7 @@ puppeteer:
 
 本章將帶領讀者透徹解構當代主流 LLM 生態系、剖析模型能力的深層驅動因子、建立基於人類偏好的匿名盲測評估方法（Arena.ai），並掌握企業級的模型選型決策矩陣（Decision Matrix），培養在多模態共存時代做出理性技術決策的核心能力。
 
-```mermaid
-flowchart LR
-    A["LLM 生態系全景<br/>• 閉源 API 服務型<br/>• 開放權重自建型"] --> B["能力驅動因子拆解<br/>• 參數規模 (Scale)<br/>• 資料品質與 Alignment<br/>• Reasoning & Tool Use"]
-    B --> C["主流模型設計哲學<br/>• GPT / Claude / Gemini<br/>• Llama / DeepSeek / Qwen"]
-    C --> D["模型評估方法學<br/>• Benchmark (標準測試)<br/>• Arena.ai (盲測與 Elo)"]
-    D --> E["企業選型與部署決策<br/>• 決策矩陣 (Decision Matrix)<br/>• 多模型協作架構"]
 
-```
 
 ---
 
@@ -57,27 +81,7 @@ flowchart LR
 
 從商業模式、隱私控制與部署架構來看，當前主流 LLM 生態系可明確劃分為兩大陣營：
 
-```mermaid
-flowchart TD
-    subgraph LLMEcosystem["當代大型語言模型生態系 (LLM Ecosystem)"]
-        direction TB
 
-        subgraph ClosedSource["閉源服務型模型 (Closed-weight Models)"]
-            C1["代表模型：GPT-4o, Claude 3.5, Gemini 1.5, Grok 3"]
-            C2["交付方式：雲端 API / 訂閱制 Web UI"]
-            C3["優勢：頂尖能力、無需維護硬體、工具生態完善"]
-            C4["劣勢：資料隱私風險、API 成本昂貴、依賴單一供應商"]
-        end
-
-        subgraph OpenSource["開放權重模型 (Open-weight Models)"]
-            O1["代表模型：Llama 3, Qwen 2.5, DeepSeek-V3/R1"]
-            O2["交付方式：開放模型權重，供本地或私有雲部署"]
-            O3["優勢：資料絕對安全、成本可控、可自由微調 (Fine-tuning)"]
-            O4["劣勢：需自備 GPU 基礎設施、維護技術門檻高"]
-        end
-    end
-
-```
 
 1. **閉源服務型模型（Closed-weight API Models）：**
    - **代表：** OpenAI（GPT-4o）、Anthropic（Claude 3.5 Sonnet）、Google（Gemini 1.5 Pro）、xAI（Grok 3）。
@@ -135,21 +139,7 @@ flowchart TD
 
 許多人直覺地以為：「參數數量越龐大（例如 1750 億參數），模型就一定越聰明。」然而，當代深度學習研究表明，**模型能力是多個維度共同作用的綜合結果**，參數規模僅是其中之一。
 
-```mermaid
-flowchart TD
-    subgraph Drivers["大型語言模型能力的多維驅動因子 (Capability Drivers)"]
-        D1["① 參數規模 (Model Scale)<br/>• 幾何容量與 Scaling Law<br/>• MoE 稀疏架構優化"]
-        D2["② 訓練資料品質 (Data Quality)<br/>• 高質量語料過濾<br/>• 多語言與合成資料 (Synthetic Data)"]
-        D3["③ 對齊技術 (Alignment)<br/>• RLHF (人類回饋強化學習)<br/>• Constitutional AI (憲法對齊)"]
-        D4["④ 推理與工具整合 (Reasoning & Tools)<br/>• 慢思考推理鏈 (CoT / R1)<br/>• Tool Calling 與 Agent 迴圈"]
-    end
 
-    D1 --> ModelCap["最終模型綜合能力表現"]
-    D2 --> ModelCap
-    D3 --> ModelCap
-    D4 --> ModelCap
-
-```
 
 ### 2.1 參數規模與 Scaling Law 的邊際效應
 
@@ -217,19 +207,7 @@ L(N, D) = \left(\frac{N_c}{N}\right)^{\frac{\alpha_N}{\alpha_D}} + \left(\frac{D
 
 為了幫助讀者在實務中精準選型，本節將全面解構當前全球最具代表性的七大 LLM 家族，分析其背後的**設計哲學、核心優勢與最適應用情境**。
 
-```mermaid
-flowchart LR
-    subgraph MultiModels["當代主流 LLM 七大家族與設計哲學"]
-        ChatGPT["ChatGPT (OpenAI)<br/>• 通用全能型助理<br/>• Tool Use & Agent 先驅"]
-        Claude["Claude (Anthropic)<br/>• 安全 Constitutional AI<br/>• 長文本與深層文風推理"]
-        Gemini["Gemini (Google)<br/>• 原生多模態對齊<br/>• 超長 Context & Google 生態"]
-        Grok["Grok (xAI)<br/>• 即時社群數據流<br/>• 實時趨勢與時事洞察"]
-        Llama["Llama (Meta)<br/>• 開放權重基座標竿<br/>• 企業私有化部署生態"]
-        DeepSeek["DeepSeek<br/>• 高效率 MoE / MLA 架構<br/>• 極致推理與高 CP 值"]
-        Qwen["Qwen (Alibaba)<br/>• 中文語料極致優化<br/>• Agent & MCP 工具生態"]
-    end
 
-```
 
 ---
 
@@ -293,18 +271,7 @@ flowchart LR
 
 在企業真實落地時，決策者經常面臨：「我們應該統一採購單一模型 API，還是建構多模型協作架構？」
 
-```mermaid
-flowchart TD
-    subgraph MultiModelArch["企業級多模型協作架構 (Multi-Model Architecture)"]
-        UserTask["使用者任務請求"] --> Router["智慧路由器 (Model Router)"]
 
-        Router -->|"長篇合約 / 論文閱讀"| Claude["Claude 3.5 Sonnet<br/>(長文本理解極致)"]
-        Router -->|"複雜數學 / 演算法推理"| DeepSeek["DeepSeek-R1<br/>(慢思考推理高 CP 值)"]
-        Router -->|"多模態視訊 / 圖片分析"| Gemini["Gemini 1.5 Pro<br/>(原生多模態大視窗)"]
-        Router -->|"內部財務 / 病歷機密處理"| LocalLlama["本地私有化 Llama 3 / Qwen<br/>(零資料外洩風險)"]
-    end
-
-```
 
 - **單模型策略優勢：** 系統架構簡單、Prompt 管理統一、API 密鑰與帳單維護方便。
 - **多模型策略優勢：** 能依據任務特性發揮各模型長處（如用 DeepSeek 解算術、用 Claude 寫文章、用 Llama 處理個資），同時分散單一供應商服務中斷（Downtime）或漲價的風險。
@@ -350,21 +317,7 @@ Benchmark 是一組預先設計好的標準化試題集，用來定量評估模�
 
 模型拿高分，究竟是因為它「真的具備強大的推理能力」，還是因為它「預先背過了這道題目的標準答案」？這正是傳統 Benchmark 越來越難反映真實使用體驗的原因。
 
-```mermaid
-flowchart TD
-    subgraph BenchmarkProblem["傳統 Benchmark 的困境 (訓練集污染)"]
-        B1["標準測試集 (如 MMLU / HumanEval)"] -->|"意外混入爬蟲資料"| Data["海量預訓練數據庫"]
-        Data --> Train["模型預訓練過程"]
-        Train --> Score["測試得分極高<br/>(究竟是『真的會推理』還是『背過答案』？)"]
-    end
 
-    subgraph ArenaSolution["Chatbot Arena 匿名盲測解答 (Blind Evaluation)"]
-        UserP["使用者自訂真實 Prompt"] --> ModelX["模型 A (匿名)"] & ModelY["模型 B (匿名)"]
-        ModelX & ModelY --> Vote["人類讀者即時對比投票"]
-        Vote --> Elo["Elo Rating 統計動態排行榜<br/>(徹底杜絕背答案作弊)"]
-    end
-
-```
 
 ---
 
@@ -432,18 +385,7 @@ Arena 如何將數百萬次的一對一匿名投票，轉化為一份精確的�
 
 一個成熟的 AI 架構師在進行模型選型時，必須同時審視以下六大關鍵維度：
 
-```mermaid
-flowchart TD
-    subgraph SixDimensions["企業模型選型決策矩陣的六大維度"]
-        D1["1. 任務匹配度 (Task Fit)<br/>寫作 / 程式碼 / 推理 / 長文本"]
-        D2["2. 準確性與可信度 (Accuracy)<br/>幻覺率 / 邏輯嚴密性 / 專業度"]
-        D3["3. 推論延遲 (Latency)<br/>首字延遲 TTFT / 每秒 Token 吞吐量"]
-        D4["4. 財務成本 (Financial Cost)<br/>API 每百萬 Token 費用 / GPU 硬體開銷"]
-        D5["5. 隱私與合規 (Privacy & Compliance)<br/>資料是否外洩 / 法規限制 / 私有部署"]
-        D6["6. 工具與多模態 (Tools & Multimodal)<br/>Function Calling / 視覺視訊讀取"]
-    end
 
-```
 
 1. **任務匹配度（Task Fit）：** 模型在目標領域（如 Python 程式設計、法律合約摘要或中文行銷文案）的專精程度。
 2. **準確性與可信度（Accuracy）：** 模型的邏輯嚴密性、幻覺發生率以及對複雜指令的遵從度（Instruction Following）。
@@ -505,25 +447,7 @@ flowchart TD
 
 ---
 
-### 概念整合架構圖
 
-```mermaid
-graph TD
-    M1["大型語言模型 (LLMs) 生態系"] --> M2{"閉源 API vs 開放權重？"}
-    M2 -->|"閉源高效"| M3["GPT-4o / Claude 3.5 / Gemini 1.5"]
-    M2 -->|"開放私有"| M4["Llama 3 / DeepSeek / Qwen 2.5"]
-
-    M3 & M4 --> E1["模型評估學 (Evaluation)"]
-    E1 --> E2["標準 Benchmark (MMLU / HumanEval)"]
-    E1 --> E3["Chatbot Arena (盲測 & Elo Rating)"]
-
-    E2 & E3 --> D1["企業選型決策矩陣 (Decision Matrix)"]
-    D1 --> D2["任務匹配 / 延遲 / 成本 / 隱私合規"]
-    D2 --> D3["落地架構：多模型協作與智慧路由器"]
-
-```
-
----
 
 ### 課後思考題
 
