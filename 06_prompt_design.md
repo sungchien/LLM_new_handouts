@@ -13,6 +13,13 @@ puppeteer:
   h2 {
     page-break-before: always;
   }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 12px auto;
+    page-break-inside: avoid;
+  }
 </style>
 ---
 
@@ -32,15 +39,6 @@ puppeteer:
 
 本章將帶領讀者透徹拆解 **Prompt 的六大核心元素（提示解剖學 Prompt Anatomy）**、引導模型慢思考的 **思考鏈（Chain-of-Thought，CoT）** 策略、**上下文學習（In-Context Learning）** 範式，並透過 **Prompt Surgery（提示手術室）** 迭代優化工作坊，培養讀者建構企業級提示工程架構的核心能力。
 
-```mermaid
-flowchart LR
-    A["使用者業務目標<br/>(User Goal)"] --> B["提示工程架構設計<br/>(Prompt Anatomy Design)"]
-    B --> C["降低任務不確定性<br/>(Reduce Task Uncertainty)"]
-    C --> D["引導模型推理鏈<br/>(Chain-of-Thought Reasoning)"]
-    D --> E["高品質結構化產出<br/>(Task Completion Output)"]
-
-```
-
 ---
 
 ## 第一節：提示工程的本質：從搜尋關鍵字到任務需求說明書
@@ -58,18 +56,6 @@ flowchart LR
 | **輸入形式** | 孤立關鍵字 (如 `東京 自由行 5 天`) | **結構化任務說明書 (Prompt Brief)** |
 | **系統輸出** | 預先存在的網站連結與旅遊網誌 | 即時推理合成的專屬行程表 Markdown 表格 |
 | **互動角色** | 使用者主動搜尋、點擊過濾與人工整理 | **使用者下達限制條件，模型執行規劃與排版** |
-
-```mermaid
-flowchart TD
-    subgraph SearchParadigm["傳統搜尋引擎思維 (Information Retrieval)"]
-        S1["輸入關鍵字: '東京 自由行 5 天'"] --> S2["引擎搜尋匹配旅遊網誌"] --> S3["傳回 10 個部落格與旅行社連結<br/>(使用者需點擊閱讀並人工排版行程)"]
-    end
-
-    subgraph LLMParadigm["生成式 AI 任務思維 (Task Completion)"]
-        L1["輸入結構化 Prompt Brief<br/>(預算/天數/喜好/格式)"] --> L2["模型理解地理時間限制與邏輯"] --> L3["執行多步驟規劃與推理<br/>(直接輸出符合需求的客製化行程表格)"]
-    end
-
-```
 
 ### 1.2 降低任務不確定性（Reduce Uncertainty）
 
@@ -115,27 +101,6 @@ flowchart TD
 為了讓提示詞的撰寫制度化與模組化，計算機科學界歸納出了一套標準的架構方法——**提示解剖學（Prompt Anatomy）**。
 
 一個完備的 Prompt 由六大核心元素組成。雖然簡單任務不一定需要同時使用六大元素，但在面對複雜的企業級任務時，元素越完整，模型的輸出品質與穩定度就越高。
-
-```mermaid
-flowchart TD
-    subgraph PromptAnatomy["提示解剖學六大元素 (Prompt Anatomy)"]
-        direction TB
-        E1["① Persona (角色與立場)<br/>定義模型的身份、視角與權威度"]
-        E2["② Task (具體任務)<br/>核心動作動詞與目標描述"]
-        E3["③ Context (背景資訊)<br/>目標受眾、業務情境與前因後果"]
-        E4["④ Constraints (限制條件)<br/>正向約束與負向防禦 (Negative Constraints)"]
-        E5["⑤ Output Format (輸出格式)<br/>Markdown / JSON / 表格 / 段落結構"]
-        E6["⑥ Examples (Few-shot 範例)<br/>提供高質量的輸入輸出示範"]
-    end
-
-    E1 --> PromptAssembly["組裝成結構化提示詞 (Structured Prompt)"]
-    E2 --> PromptAssembly
-    E3 --> PromptAssembly
-    E4 --> PromptAssembly
-    E5 --> PromptAssembly
-    E6 --> PromptAssembly
-
-```
 
 ---
 
@@ -231,18 +196,7 @@ flowchart TD
 
 為了解決這個問題，Google 研究團隊提出了劃時代的 **思考鏈（Chain-of-Thought，CoT）提示策略**。
 
-```mermaid
-flowchart TD
-    subgraph DirectPrompting["傳統直接提示 (Direct Prompting)"]
-        DP1["輸入複雜問題"] --> DP2["模型直接預測最終答案<br/>(嘗試一步到位，極易出錯)"]
-    end
-
-    subgraph CoTPrompting["思考鏈提示 (Chain-of-Thought Prompting)"]
-        CP1["輸入複雜問題"] --> CP2["引導模型將思考過程顯性化<br/>(Step 1 → Step 2 → Step 3)"]
-        CP2 --> CP3["基於正確的中間推理推導出最終答案<br/>(準確率大幅提升)"]
-    end
-
-```
+![傳統直接提示 vs 思考鏈提示](img/ch06_cot_comparison.png)
 
 ### 3.1 CoT 的核心哲學：將內部推理顯性化（Explicit Reasoning）
 
@@ -309,34 +263,35 @@ Kojima 等人發現了一個令人震驚的現象：甚至不需要提供任何�
 
 1. **早期階段（外顯提示 CoT）：** 在早期對話模型中，模型預設傾向於快速輸出答案。開發者必須透過手動撰寫 `"Let's think step by step"` 或 Few-shot 範例，強迫模型在文字序列中顯性化其思考步驟。
 2. **當代成熟階段（原生推理模型，Reasoning-First Models）：**
-   - 當前主流對話模型（如 OpenAI o1 / o3、DeepSeek-R1 / V3、Gemini 3.6 / 3.7 Flash Thinking、Claude 3.7 Think）已將 Chain-of-Thought **直接內化為神經網路的核心運算架構與強化學習（RL）對齊機制**。
+   - 當前主流對話模型（如 OpenAI o1 / o3、DeepSeek-R1 / V3、Gemini 3.1 Flash / Pro、Claude 3.7 Sonnet Thinking）已將 Chain-of-Thought **直接內化為神經網路的核心運算架構與強化學習（RL）對齊機制**。
    - **原生 Reasoning Tokens（推理詞元）：** 當模型接到複雜任務時，會在輸出最終回答前，自動在背景的獨立隱藏區域（Reasoning Buffer）生成數千字的思考鏈進行多假設驗證與自我糾錯。
 3. **推理模型時代下 Prompt Engineering 的轉型：**
    - **冗餘提示詞的淘汰：** 對於原生推理模型，手動輸入 `"Let's think step by step"` 已變得完全冗餘，甚至可能干擾模型內建的強化學習思考路徑。
    - **提示工程的新重點：** 提示工程的重心從「如何強迫模型思考」轉變為**「如何設定推理邊界（Reasoning Scope）、驗證條件、評估標準與分配推理預算（Reasoning Effort / Budget）」**。
-   - **選型分流：** 在不需要深思的日常寫作或資料轉譯任務中，使用極速模型（Fast Models）；而在複雜數學、程式碼除錯或法規分析中，調用原生推理模型並專注於問題條件與限制的精確定義。
+   - **選型分流：** 在不需要深思的日常寫作或資料轉譯任務中，將思考等級調至最低（`Minimal` / `Low`）以追求極速與低成本；而在複雜數學、程式碼除錯或法規分析中，調高思考等級（`Medium` / `High`）並專注於問題條件與限制的精確定義。
 
 ---
 
 ### 3.5 課堂實驗活動：原生 Thinking Level 控制 vs 邏輯推理對決
 
-請各位同學開啟 Google AI Studio 控制台，體驗原生推理模型中 **Thinking Level（思考等級控制 / Reasoning Budget）** 參數設定對複雜邏輯問題的直接影響。
+請各位同學開啟 Google AI Studio 控制台，體驗原生推理模型中 **Thinking Level（思考等級控制：`Minimal`、`Low`、`Medium`、`High`）** 參數設定對「多條件交互制約與回溯推理（Backtracking）」問題的直接影響。
 
 #### 實驗環境配置：
-- **Model：** 選擇最新 `Gemini 3.6 Flash` 或 `Gemini 3.7 Flash`。
-- **固定 Prompt（保持提示詞文字完全相同，不加任何額外引導）：**
-  > *「一個老爺爺有三個兒子，每個兒子又有一個妹妹。請問老爺爺一共有幾個孩子？請直接給出數字。」*
+- **Model：** 選擇 `Gemini 3.1 Flash`（或當前支援 Thinking Level 調整之 Gemini 模型）。
+- **固定 Prompt（保持提示詞文字完全相同，強制模型直接給出最終數字，不允許在正文寫出推導過程）：**
+  > *「有一組五位數密碼 ABCDE，由 1 到 9 之間 5 個『互不重複』的數字組成，且同時滿足以下五個條件：(1) 前兩位組成的二位數 AB 是 8 的倍數；(2) 第二、三位組成的二位數 BC 是 9 的倍數；(3) 第三、四位組成的二位數 CD 是質數；(4) 後兩位組成的二位數 DE 是完全平方數；(5) 五個數字的總和（A+B+C+D+E）恰好等於 19。請問這組五位數密碼是什麼？請直接只輸出這組 5 位數密碼，絕對不要輸出任何推理或計算過程。」*
 
 #### 實驗步驟與對比：
-1. **對照組（Thinking Level = Off / Low）：**
-   - 在右側 Configuration Panel 控制面板中，將 **Thinking Level** 設為 `Off`（關閉原生思考鏈）或最低等級。
-   - 點擊 Run，觀察模型在沒有進入深度思考運算時，是否容易掉入直覺性陷阱，誤回答 *"6 個孩子"*（$3 + 3 = 6$）。
+1. **對照組（Thinking Level = Minimal）：**
+   - 在右側 Configuration Panel 控制面板中，將 **Thinking Level** 設為最低等級 `Minimal`（極小化內部思考預算）。
+   - 點擊 Run，觀察模型在缺乏足夠內部 Reasoning Buffer 且正文被禁止展開步驟的情況下，只能依賴直覺由左而右猜測，極易掉入死胡同分支（例如誤猜 `24536` 導致總和為 20，或誤猜 `32736` 導致數字 3 重複，甚至湊出違反平方數/質數條件的錯誤密碼）。
 2. **實驗組（Thinking Level = High）：**
    - 保持提示詞文字完全不變，將右側 **Thinking Level** 調整為 `High`（高強度慢思考推理）。
-   - 點擊 Run，點開回答上方的 **"Thought" / "Reasoning Process"** 展開區塊，觀察模型如何在背景 Reasoning Buffer 中進行成員關係鏈的推導（分析出「三個兒子共用同一個妹妹」），並最終在主回答中輸出正確答案 *"4 個孩子"*（3 個兒子 + 1 個女兒）。
+   - 點擊 Run，點開回答上方的 **"Thoughts"** 展開區塊，觀察模型如何在背景隱藏思考區中進行分支窮舉與回溯消去（例如從平方數 $\overline{DE} \in \{16, 36\}$ 逆推，排除重複數字與總和不符的候選解 `24536`、`48136`、`32736`），最終在主回答中精準輸出唯一正解 **`32716`**（驗證：`32` 為 8 的倍數、`27` 為 9 的倍數、`71` 為質數、`16` 為完全平方數、$3+2+7+1+6=19$）。
 
 > **老師的提醒：**
-> - **從「手動寫提示詞」到「控制面板原生參數」**：在早期傳統對話模型時代，開發者需要手動在 Prompt 末尾加上 *"Let's think step by step"* 來刺激模型進行文字層面的步驟運算；而在當代 API 與 Google AI Studio 中，透過控制面板的 **Thinking Level** 參數（或 API 中的 `thinking_budget`），能直接調控神經網路內建的推理神經迴路深度與 Token 算力預算，這正是當代提示工程師必備的控制能力！
+> - **為什麼簡單的腦筋急轉彎測試不出差異？** 像常見的網路腦筋急轉彎（例如「三個兒子每個兒子有一個妹妹」），早已被收錄進大型語言模型的預訓練語料庫中，即便設為 `Minimal`，模型也能靠「記憶檢索」直接答對。唯有面對**需要多步分支試誤與回溯（Backtracking）的組合約束問題**時，才能清楚看見 `Minimal`（直覺猜測易出錯）與 `High`（深度搜尋驗證）在推理算力上的本質差異！
+> - **從「手動寫提示詞」到「控制面板原生參數」**：在當代 API 與 Google AI Studio 中，透過控制面板的 **Thinking Level**（`Minimal` / `Low` / `Medium` / `High`）或 API 中的 `thinking_budget`，能直接調控神經網路內建的推理迴路深度與 Token 算力預算，這正是當代提示工程師必備的控制能力。
 
 ---
 
@@ -345,16 +300,6 @@ Kojima 等人發現了一個令人震驚的現象：甚至不需要提供任何�
 大型語言模型具備極強的 **上下文學習能力（In-Context Learning，ICL）**。這意味著我們不需要重新訓練或微調（Fine-tuning）神經網路的權重，只需在 Prompt 中提供幾個優質的示範範例，模型就能在推論階段即時學會全新的任務格式。
 
 依據提供範例數量的不同，提示工程劃分為三大範式：
-
-```mermaid
-flowchart LR
-    subgraph PromptingParadigms["提示範式三流派 (Prompting Paradigms)"]
-        ZeroShot["Zero-shot (零樣本)<br/>• 不提供任何範例<br/>• 直接下達指令<br/>• 依賴模型預訓練常識"]
-        OneShot["One-shot (單樣本)<br/>• 提供 1 個精準範例<br/>• 定義輸入與輸出格式"]
-        FewShot["Few-shot (少樣本)<br/>• 提供 2~5 個代表性範例<br/>• 適用於複雜分類與結構化萃取"]
-    end
-
-```
 
 ### 4.1 提示範式三流派對比
 
@@ -416,21 +361,7 @@ flowchart LR
 
 在軟體工程中，沒有任何複雜程式碼是一次寫成且零 Bug 的。提示工程亦然——**真正的 Prompt Engineering 是一個持續測試（Test）、觀察（Observe）、手術修剪（Refine）的迭代過程。**
 
-```mermaid
-flowchart TD
-    subgraph PromptSurgeryLoop["提示手術室 (Prompt Surgery) 迭代優化流程"]
-        P0["Step 0: 原始模糊 Prompt<br/>'請介紹大型語言模型'"] --> P1["Step 1: 注入 Persona<br/>'你是一位資工系教授...'"]
-        P1 --> P2["Step 2: 注入 Context & 受眾<br/>'...針對大一新生...'"]
-        P2 --> P3["Step 3: 注入 Constraints & 負向限制<br/>'...控制在 300 字內，禁止使用矩陣公式...'"]
-        P3 --> P4["Step 4: 指定 Output Format<br/>'...使用 Markdown 三段式結構...'"]
-        P4 --> P5["Step 5: 加入 Few-shot / CoT (若有需要)"]
-
-        P5 --> Verify{"驗證輸出結果<br/>是否 100% 符合預期？"}
-        Verify -->|"否 (仍有瑕疵)"| Trim["微調單一元素 (One at a time)"] --> Verify
-        Verify -->|"是 (完美達標)"| Freeze["凍結 Prompt 版本並上線"]
-    end
-
-```
+![提示手術室 (Prompt Surgery) 迭代優化流程](img/ch06_prompt_surgery.png)
 
 ### 5.1 提示手術室（Prompt Surgery）原則：一次只改一個變因
 
@@ -494,19 +425,7 @@ flowchart TD
 
 ### 提示工程架構整合圖
 
-```mermaid
-graph TD
-    UserGoal["使用者業務需求"] --> Strategy{"選擇 Prompting 策略"}
-
-    Strategy -->|"通用寫作 / 摘要"| ZeroShot["Zero-shot 提示解剖學"]
-    Strategy -->|"複雜邏輯 / 數學推導"| CoT["Chain-of-Thought (思考鏈)"]
-    Strategy -->|"特殊格式 / 資料擷取"| FewShot["Few-shot 範例引導"]
-
-    ZeroShot & CoT & FewShot --> Anatomy["套用提示解剖學六大元素<br/>(Persona + Task + Context + Constraints + Format)"]
-    Anatomy --> Surgery["Prompt Surgery 迭代手術 (單一變因測試)"]
-    Surgery --> Production["正式上線版本 (Prompt Version Control)"]
-
-```
+![提示工程架構整合圖](img/ch06_prompt_architecture.png)
 
 ---
 
