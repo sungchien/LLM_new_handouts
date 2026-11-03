@@ -13,6 +13,13 @@ puppeteer:
   h2 {
     page-break-before: always;
   }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 12px auto;
+    page-break-inside: avoid;
+  }
 </style>
 ---
 
@@ -30,23 +37,11 @@ puppeteer:
 
 本章將帶領讀者透徹拆解 **Chatbot 與 AI Agent 的範式轉移（Paradigm Shift）**、**AI Agent 系統架構的六大核心元件**、**循環工程（Loop Engineering）** 與經典的 **ReAct (Reason + Action + Observation) 思考與執行迴圈**，並透過 **Google AI Studio 實作對比驗證** 與 **ReAct Prompt 設計工作坊**，培養讀者建構企業級 AI Agent 系統的核心工程能力。
 
-```mermaid
-flowchart LR
-    A["Chatbot 與 AI Agent<br/>範式轉移"] --> B["六大核心元件<br/>系統架構"]
-    B --> C["循環工程與 ReAct<br/>思考與執行迴圈"]
-    C --> D["Google AI Studio<br/>實作對比驗證"]
-    D --> E["ReAct Prompt<br/>設計工作坊"]
-```
-
 ---
 
 ## 第一節：從 Chatbot 到 AI Agent：自主任務執行的範式轉移
 
-```mermaid
-flowchart LR
-    A["聊天機器人 (Chatbot)<br/>• 單次對話映射 (I/O)<br/>• 被動回答問題<br/>• 缺乏工具與閉環"] --> B["Prompt 引導推理 (CoT)<br/>• 慢思考與鏈式推導<br/>• 提示解剖學 (Anatomy)<br/>• 上下文學習 (ICL)"]
-    B --> C["AI Agent<br/>• 目標驅動 (Goal-oriented)<br/>• 工具與環境調用 (Tools)<br/>• 循環工程 (ReAct Loop)"]
-```
+![從 Chatbot 到 AI Agent 的演進範式轉移](img/ch07_paradigm_shift.png)
 
 ### 1.1 資訊對答 vs 任務完成 (Answer Questions vs. Task Completion)
 
@@ -66,30 +61,7 @@ flowchart LR
 | **自我修正** | 無法檢查輸出品質，單次輸出即結束 | **透過 Observation 評估結果並自動調整策略** |
 | **狀態保存** | 仰賴對話 Context，狀態易流失 | **具備短期與長期 Memory 系統記錄狀態** |
 
-```mermaid
-flowchart TD
-    subgraph AgentParadigm["AI Agent 運作架構 (Goal-Driven Loop)"]
-        direction TB
-        A1["使用者設定高階目標 (Goal)"]
-        A2["Reasoning: 模型邏輯推理與任務拆解"]
-        A3["Action: 呼叫工具或檢索數據 (Tools/APIs)"]
-        A4["Observation: 接收外部環境執行結果 (Environment)"]
-        A5{"是否滿足 Stop Condition？"}
-        A6["交付驗證成果 (Task Completion)"]
-
-        A1 --> A2 --> A3 --> A4 --> A5
-        A5 -- 否 (繼續修正) --> A2
-        A5 -- 是 (目標完成) --> A6
-    end
-
-    subgraph ChatbotParadigm["Chatbot 互動模式 (Single-turn I/O)"]
-        direction TB
-        C1["使用者輸入 Prompt"]
-        C2["LLM 靜態知識權重檢索"]
-        C3["一次性輸出最終文字回答"]
-        C1 --> C2 --> C3
-    end
-```
+![Chatbot 互動模式與 AI Agent 運作架構對比](img/ch07_chatbot_vs_agent.png)
 
 ### 1.2 案例剖析：旅行規劃任務（Case Study）
 
@@ -140,16 +112,7 @@ flowchart TD
 > **AI Agent 系統公式：**  
 > **AI Agent System = LLM (Reasoning Engine) + Memory + Tools + Environment + Workflow Loop**
 
-```mermaid
-flowchart TD
-    G["1. Goal (任務目標)<br/>定義任務終點與成功標準"] --> R["2. Reasoning (LLM 推理大腦)<br/>邏輯分析、任務拆解與決策"]
-    R <--> M["6. Memory (狀態與歷史記憶)<br/>短期 Context 與長期向量庫"]
-    R <--> T["3. Tools (外部工具庫)<br/>APIs / Web Search / Python"]
-    R <--> E["4. Environment (外部動態環境)<br/>使用者輸入 / 網頁 / 資料庫"]
-    T --> O["5. Observation (觀察與反饋)<br/>API 回傳數據與執行結果"]
-    E --> O
-    O --> R
-```
+![AI Agent 系統架構與六大核心元件互動關係](img/ch07_six_core_components.png)
 
 ---
 
@@ -167,13 +130,8 @@ flowchart TD
 - **功能：** 擴充 LLM 能力邊界的外部介面（APIs, Calculators, Python Interpreter, Web Search, Database Query）。
 - **工程價值：** LLM 負責邏輯推理，Tools 則提供精準運算與即時真實數據。
 - **呼叫範例：**
-  ```mermaid
-  flowchart LR
-      User["問題: 台北今日降雨機率？"] --> Reasoning["LLM 識別需要即時氣象數據"]
-      Reasoning --> CallAPI["Call WeatherAPI(city='Taipei')"]
-      CallAPI --> ReturnData["Return JSON: {rain_prob: 80%}"]
-      ReturnData --> Response["生成最終回答: '台北今日降雨機率為 80%'"]
-  ```
+
+  ![外部工具呼叫流程範例：即時氣象 API 檢索](img/ch07_tool_call_example.png)
 
 #### 4. Environment（外部動態環境）
 - **功能：** Agent 所處的動態上下文世界。環境包含使用者輸入、網頁狀態、資料庫更新或 API 回傳狀態。
@@ -216,12 +174,7 @@ flowchart TD
 
 $$ \text{ReAct Cycle} = \text{Reason (Thought)} \longrightarrow \text{Action} \longrightarrow \text{Observation} \longrightarrow \text{Next Thought} $$
 
-```mermaid
-flowchart LR
-    T["1. Thought<br/>(推理與思考分析)"] --> A["2. Action<br/>(行動/工具呼叫)"]
-    A --> O["3. Observation<br/>(觀察反饋數據)"]
-    O --> T
-```
+![ReAct 核心思考與執行迴圈](img/ch07_react_cycle.png)
 
 #### ReAct 三大步驟剖析：
 
@@ -361,23 +314,7 @@ Action 4: Finish("交付完整行程規劃表")
 
 ### 系統架構整合圖
 
-```mermaid
-graph TD
-    UserGoal["使用者業務目標 (Goal)"] --> SystemArchitecture["AI Agent 系統整合架構"]
-
-    subgraph AgentCore["Agent 核心循環 (Workflow Loop)"]
-        Thought["Thought (推理大腦)"] --> Action["Action (調用 Tools / APIs)"]
-        Action --> Env["Environment (外部動態環境)"]
-        Env --> Obs["Observation (觀察反饋數據)"]
-        Obs --> Thought
-    end
-
-    SystemArchitecture --> AgentCore
-    AgentCore <--> Memory["Memory (短期 Context / 長期 Vector DB)"]
-    AgentCore --> StopCondition{"滿足 Stop Condition？"}
-    StopCondition -->|"是"| TaskCompletion["交付驗證成果 (Task Completion)"]
-    StopCondition -->|"否"| AgentCore
-```
+![AI Agent 系統架構整合圖](img/ch07_system_architecture.png)
 
 ---
 
