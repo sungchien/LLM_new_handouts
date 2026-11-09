@@ -1,19 +1,59 @@
 ---
 puppeteer:
   displayHeaderFooter: true
-  headerTemplate: '<div style="font-size: 10px; margin: 0 auto;">第八章：工具調用與 API 介面：Function Calling 運作機制</div>'
-  footerTemplate: '<div style="font-size: 10px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
+  scale: 1.15
+  headerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第八章：工具調用與 API 介面：Function Calling 運作機制</div>'
+  footerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
   margin:
     top: "1.5cm"
     bottom: "1.5cm"
     left: "1.5cm"
     right: "1.5cm"
 ---
+
 <style>
-  h2 {
-    page-break-before: always;
+  /* 全域字型、字級與行距 */
+  body {
+    font-size: 16pt !important;
+    line-height: 1.7 !important;
+    font-family: "Microsoft JhengHei", "PingFang TC", "Helvetica Neue", sans-serif;
+  }
+
+  /* 階層標題微調 */
+  h1 { font-size: 30pt !important; margin-bottom: 0.5em !important; }
+  h2 { font-size: 24pt !important; page-break-before: always; }
+  h3 { font-size: 20pt !important; }
+  h4 { font-size: 18pt !important; }
+
+  /* 表格文字放大與排版優化 */
+  table, th, td {
+    font-size: 15pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* 程式碼區塊 (自動換行防止 PDF 截斷) */
+  pre, code {
+    font-size: 13pt !important;
+    font-family: Consolas, "Courier New", monospace !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+  }
+
+  /* Mermaid 流程圖節點字體放大 */
+  .mermaid text {
+    font-size: 14px !important;
+  }
+
+  /* 圖片排版與防斷頁 */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 12px auto;
+    page-break-inside: avoid;
   }
 </style>
+
 ---
 
 # 第八章：工具調用與 API 介面：Function Calling 運作機制
@@ -30,13 +70,7 @@ puppeteer:
 
 本章將帶領讀者透徹拆解 **LLM 的能力邊界與 Tool Use 需求**、**Function Calling 的四階段生命週期**、**JSON Schema 的工具宣告規範**、**工具執行失敗時的自癒與錯誤處理（Self-Correction）**，並透過 **Google AI Studio 實作驗證** 與 **Function Calling 設計工作坊**，培養讀者建構具備真實工具介接能力之 AI Agent 的工程實戰力。
 
-```mermaid
-flowchart LR
-    A["LLM 能力邊界與<br/>Tool Use 需求"] --> B["Function Calling<br/>四階段運作機制"]
-    B --> C["JSON Schema 與<br/>意圖攔截與參數生成"]
-    C --> D["錯誤處理與 ReAct<br/>自我修正 (Self-Correction)"]
-    D --> E["Google AI Studio<br/>Tool 實作與對比驗證"]
-```
+![第八章學習藍圖：工具調用與 API 介面：Function Calling 運作機制](img/ch08_chapter_roadmap.png)
 
 ---
 
@@ -52,24 +86,7 @@ flowchart LR
 2. **精確數理運算極限：** 面對大位數乘除、複雜浮點數計算或高等統計時，LLM 容易因 Next-Token Prediction 的機率本質而產生運算幻覺（Hallucination）。
 3. **外部系統操作無能：** 無法直接修改資料庫記錄、發送 Email、建立 Google Calendar 預約或執行 Python 腳本。
 
-```mermaid
-flowchart TD
-    subgraph LLMBoundary["單純 LLM 的能力邊界 (Standalone LLM Limitations)"]
-        direction TB
-        L1["知識受限於訓練切止時間 (No Real-time Data)"]
-        L2["數理計算依賴 Token 採樣 (Math Hallucination)"]
-        L3["無法直接操作外部軟體系統 (No Side Effects)"]
-    end
-
-    subgraph ToolUseCapabilities["Tool Use 擴充的能力邊界 (Tool Extended Capabilities)"]
-        direction TB
-        T1["Web Search / Weather API 獲取即時世界數據"]
-        T2["Calculator / Python 執行 100% 精準數學運算"]
-        T3["DB / Email / Calendar API 執行真實業務操作"]
-    end
-
-    LLMBoundary ==>|"導入 Function Calling 介面"| ToolUseCapabilities
-```
+![單純 LLM 能力邊界與 Tool Use 擴充能力對比](img/ch08_llm_boundary_vs_tool.png)
 
 ---
 
@@ -94,14 +111,7 @@ flowchart TD
 
 在第七章介紹的 ReAct 架構中，AI Agent 的循環為 **Reason ──> Action ──> Observation**。在未介接工具前，`Action` 多半只是模型在文字層面描述「下一步想做什麼」；而導入 Tool Use 後，**Function Calling 正是 Action 的具體程式實作**！
 
-```mermaid
-flowchart TD
-    G["Goal: 評估今天新北市下午是否需要帶雨傘"] --> R1["Thought 1: 判斷需要取得新北市今日降雨機率"]
-    R1 --> A1["Action 1: Call WeatherTool(city='New Taipei', time='today')"]
-    A1 --> O1["Observation 1: API 回傳 JSON: {rain_probability: 85%}"]
-    O1 --> R2["Thought 2: 降雨機率高達 85%，分析應建議攜帶雨具"]
-    R2 --> A2["Finish: 輸出最終建議與天氣說明"]
-```
+![ReAct 架構下的工具調用執行流：新北市降雨評估實例](img/ch08_react_weather_example.png)
 
 > **老師的提醒：**
 > - **LLM 並不是自己跑去執行程式**：初學者常誤以為「AI 自動跑去開了氣象局網頁」。事實上，LLM 只是**輸出了一行表達呼叫意圖的結構化文字（JSON）**，真正的網路請求（HTTP Request）是由我們寫的後端程式或平台（如 Google AI Studio）幫它執行的！
@@ -139,26 +149,7 @@ flowchart TD
 
 一次完整的 Function Calling 生命週期可劃分為以下四個階段：
 
-```mermaid
-flowchart TD
-    subgraph Dev["Stage 1: 工具定義 (Developer)"]
-        S1["1. Schema Definition<br/>開發者撰寫 JSON Schema 宣告可用工具與參數規範"]
-    end
-
-    subgraph LLM1["Stage 2: 意圖攔截與參數生成 (LLM Brain)"]
-        S2["2. Intent & Parameter Generation<br/>LLM 推理並輸出 JSON Function Call Request"]
-    end
-
-    subgraph App["Stage 3: 本地端程式執行 (Application)"]
-        S3["3. Local Execution<br/>應用程式解析 JSON，呼叫外部 API 或執行 Python"]
-    end
-
-    subgraph LLM2["Stage 4: 結果回傳與觀察 (LLM Brain)"]
-        S4["4. Result Observation & Answer<br/>將 API 回傳結果送回 LLM 作為 Observation 產出自然語言回答"]
-    end
-
-    S1 --> S2 --> S3 --> S4
-```
+![Function Calling 四階段生命週期運作架構](img/ch08_four_stages_lifecycle.png)
 
 ---
 
@@ -201,14 +192,7 @@ flowchart TD
 
 在真實工程開發中，將 Function Schema 提供給 LLM 的方式取決於您使用的是**原生 API SDK** 還是**一般開放原始碼 LLM**：
 
-```mermaid
-flowchart TD
-    Client["開發者準備 Function Schema"] --> ArchitectureCheck{"使用何種 LLM 介面？"}
-
-    ArchitectureCheck -- "情況 A: 原生 Function Calling API<br/>(Gemini API / OpenAI / Anthropic)" --> NativeAPI["填入 API 請求的 tools=[...] 參數陣列<br/>平台自動轉換並注入系統底層 Context<br/>(無需手動貼在 Prompt 中)"]
-
-    ArchitectureCheck -- "情況 B: 一般 Open-Source LLM<br/>(Llama 3 / Mistral / 自建模型)" --> PromptInjection["顯式加在 System Instruction 或 User Prompt 開頭<br/>要求模型遵守特定 JSON 輸出規範<br/>(後端透過 Regex 攔截解析)"]
-```
+![Function Schema 提供方式比較：原生 API vs Prompt 顯式注入](img/ch08_schema_injection_comparison.png)
 
 ##### 情況 A：使用支援原生 Function Calling 的 SDK / API（如 Gemini API / OpenAI API）
 - **不需要手動寫進 Prompt 中！**
@@ -274,18 +258,7 @@ JSON 是一種輕量、結構化且可程式化的資料交換標準。LLM 輸�
 
 理想情況下，工具調用順暢無阻。然而在真實工程環境中，外部 API 經常遭遇網路延遲、參數傳遞錯誤或伺服器崩潰。一個成熟的 AI Agent 必須具備良好的 **Error Handling 與自我修正（Self-Correction）能力**。
 
-```mermaid
-flowchart TD
-    A["LLM 發起 Function Call Request"] --> B["應用程式執行外部 API/Tools"]
-    B --> C{"執行結果狀態？"}
-    C -- "Success (成功)" --> D["將資料作為 Observation 送回 LLM 產出回答"]
-    C -- "Error / Fail (失敗)" --> E["將錯誤訊息包裝為 Observation 送回 LLM"]
-    E --> F["LLM 進行自我修正推理 (Self-Correction)"]
-    F --> G{"選擇修復策略"}
-    G -- "Retry (重試)" --> B
-    G -- "Fallback (切換工具)" --> H["呼叫備用 API"]
-    G -- "Ask User (發問)" --> I["向使用者請求正確變數"]
-```
+![Function Calling 錯誤處理與自我修正機制](img/ch08_error_handling_self_correction.png)
 
 ---
 
@@ -327,15 +300,7 @@ flowchart TD
 
 答案是：**三個層級各司其職，形成三層防禦網！**
 
-```mermaid
-flowchart TD
-    Layer1["1. Function Schema 防禦<br/>(資料層欄位與參數約束規範)"] --> Layer2["2. System Instruction 防禦<br/>(LLM 推理行為守則)"]
-    Layer2 --> Layer3["3. Application Code 防禦<br/>(後端程式自動 Retry / Fallback)"]
-
-    Layer1 -.-> L1_Desc["• description 載明格式 (例: YYYY-MM-DD)<br/>• required 強制欄位約束 (大幅減少 Missing Parameters)"]
-    Layer2 -.-> L2_Prompt["規範 LLM 收到 Error Observation 時<br/>嚴禁編造假數據，須自我修正或發問"]
-    Layer3 -.-> L3_Code["後端程式封裝 HTTP Retry<br/>與切換備援 API 邏輯"]
-```
+![AI Agent 三層防禦網架構：從宣告到執行的全方位容錯機制](img/ch08_three_defense_layers.png)
 
 1. **Function Schema 層級（資料邊界與參數約束防禦）：**  
    - 標準 JSON Schema 雖然不支援動態 `if/else` 程式邏輯，但可透過以下兩種關鍵機制進行前置防禦：
@@ -496,22 +461,7 @@ Action 4: Finish("已為您找到『Tokyo Central Hotel』，2 晚總價 12,000 
 
 ### Function Calling 系統架構整合圖
 
-```mermaid
-graph TD
-    UserQuery["使用者需求 Query"] --> LLMBrain["LLM 推理大腦 (Reasoning Engine)"]
-    DeveloperSchema["Developer 定義之 JSON Schema"] --> LLMBrain
-
-    LLMBrain --> IntentCheck{"是否需要使用工具？"}
-    IntentCheck -- "否" --> DirectAnswer["直接自回歸生成自然語言回答"]
-    IntentCheck -- "是" --> JSONRequest["輸出 JSON Function Call Request"]
-
-    JSONRequest --> AppEngine["應用程式執行引擎 (Application/API)"]
-    AppEngine --> RealWorldTools["外部 API / 資料庫 / Python 工具"]
-    RealWorldTools --> ExecutionResult["執行結果 / 錯誤訊息 (Observation)"]
-
-    ExecutionResult --> LLMBrain
-    LLMBrain --> FinalResponse["整合 Observation 產出最終自然語言解答"]
-```
+![Function Calling 完整系統架構整合圖](img/ch08_system_architecture.png)
 
 ---
 

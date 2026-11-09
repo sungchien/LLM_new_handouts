@@ -1,14 +1,16 @@
 ---
 puppeteer:
   displayHeaderFooter: true
-  headerTemplate: '<div style="font-size: 10px; margin: 0 auto;">第二章：深度學習架構：從神經元到 Transformer 演進</div>'
-  footerTemplate: '<div style="font-size: 10px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
+  scale: 1.15
+  headerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第二章：深度學習架構：從神經元到 Transformer 演進</div>'
+  footerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
   margin:
     top: "1.5cm"
     bottom: "1.5cm"
     left: "1.5cm"
     right: "1.5cm"
 ---
+
 <style>
   /* 全域字型、字級與行距 */
   body {
@@ -29,17 +31,29 @@ puppeteer:
     line-height: 1.5 !important;
   }
 
-  /* 程式碼區塊 */
+  /* 程式碼區塊 (自動換行防止 PDF 截斷) */
   pre, code {
-    font-size: 15pt !important;
+    font-size: 13pt !important;
     font-family: Consolas, "Courier New", monospace !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
   }
 
   /* Mermaid 流程圖節點字體放大 */
   .mermaid text {
     font-size: 14px !important;
   }
+
+  /* 圖片排版與防斷頁 */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 12px auto;
+    page-break-inside: avoid;
+  }
 </style>
+
 ---
 
 # 第二章：深度學習架構：從神經元到 Transformer 演進

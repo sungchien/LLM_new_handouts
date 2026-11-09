@@ -2,7 +2,7 @@
 puppeteer:
   displayHeaderFooter: true
   scale: 1.15
-  headerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第四週：利用 CSS 賦予網頁外觀</div>'
+  headerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第五章：控制大型語言模型的生成：自回歸機制與解碼參數剖析</div>'
   footerTemplate: '<div style="font-size: 11px; margin: 0 auto;">第 <span class="pageNumber"></span> 頁 / 共 <span class="totalPages"></span> 頁</div>'
   margin:
     top: "1.5cm"
@@ -42,6 +42,15 @@ puppeteer:
   /* Mermaid 流程圖節點字體放大 */
   .mermaid text {
     font-size: 14px !important;
+  }
+
+  /* 圖片排版與防斷頁 */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 12px auto;
+    page-break-inside: avoid;
   }
 </style>
 
