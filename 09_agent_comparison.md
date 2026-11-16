@@ -70,13 +70,7 @@ puppeteer:
 
 本章將帶領讀者透徹拆解 **Chatbot 與 AI Agent 的執行範式轉移**、**AI Agent 三大應用生態系三分法**、**商業授權與開源框架之區別**、**Google Antigravity 2.0 多介面架構（Surfaces）**，並透過 **Antigravity 2.0 Desktop 本地 Project 實作驗證** 與 **多檔案專案整理工作坊**，培養讀者駕馭本地 AI Agent 完成真實軟體專案的實戰能力。
 
-```mermaid
-flowchart LR
-    A["Chatbot 到 Agent<br/>範式轉移"] --> B["AI Agent 三大生態系<br/>與開源框架分類"]
-    B --> C["Local Agent Runtime<br/>與系統權限架構"]
-    C --> D["Google Antigravity 2.0<br/>Desktop 實務操作"]
-    D --> E["Project 導向實務<br/>工作坊與檔案操作"]
-```
+![第九章學習藍圖：AI Agent 生態系與執行環境：Local Agent 與 Runtime 架構](img/ch09_chapter_roadmap.png)
 
 ---
 
@@ -103,30 +97,7 @@ flowchart LR
 
 **Agent Runtime（代理人執行環境）** 是指介於大型語言模型與作業系統之間的受控執行層。LLM 本質上只提供邏輯推理（Brain），而 Runtime 則提供了「雙手與腳」——負責接收 LLM 發出的 Tool Call 請求，並安全地呼叫作業系統的檔案系統（FS）、命令列（Shell）或網路介面（Network）。
 
-```mermaid
-flowchart TD
-    subgraph LLMBrain["LLM 推理大腦 (Reasoning Engine)"]
-        Thought["Thought & Reasoning"]
-        ToolJSON["Output: JSON Tool Request"]
-    end
-
-    subgraph RuntimeLayer["Agent Runtime (代理人執行環境 / 安全沙盒)"]
-        PermissionControl["權限控管與安全性審查 (Permission Boundary)"]
-        ExecutionEngine["工具與指令執行引擎 (Tool & Shell Executor)"]
-    end
-
-    subgraph LocalOS["本地作業系統環境 (Local Environment)"]
-        FS["檔案系統 (Filesystem Read/Write)"]
-        Terminal["Command Line (Bash / PowerShell)"]
-        GitRepo["Git 版本控制 (Repository Status)"]
-    end
-
-    LLMBrain ==> ToolJSON
-    ToolJSON --> PermissionControl
-    PermissionControl --> ExecutionEngine
-    ExecutionEngine ==> LocalOS
-    LocalOS -.->|"Observation 回傳"| LLMBrain
-```
+![Agent Runtime 受控執行層與系統架構](img/ch09_runtime_architecture.png)
 
 > **老師的提醒：**
 > - **Runtime 是安全防護網**：讓 Agent 能夠讀寫本地檔案並不等於「把電腦完全交給 AI」。一個優秀的 Agent Runtime（如 Google Antigravity）具備嚴格的 Workspace 邊界限制與 Human-in-the-loop 人機確認機制，防止 Agent 誤刪資料夾以外的系統檔案。
@@ -141,12 +112,7 @@ flowchart TD
 
 從主要應用目的與工作情境來看，當前主流的 AI Agent 可以劃分為三大部分：
 
-```mermaid
-flowchart TD
-    Ecosystem["AI Agent 生態系 (Agent Ecosystem)"] --> General["1. General-purpose Agent<br/>(通用知識工作者: ChatGPT, Gemini, Claude)"]
-    Ecosystem --> SE["2. Software Engineering Agent<br/>(軟體工程代理: Claude Code, Antigravity)"]
-    Ecosystem --> Enterprise["3. Enterprise Agent<br/>(企業協作夥伴: Copilot, Workspace Gemini)"]
-```
+![AI Agent 三大主流應用生態系分類 (Ecosystem Triad)](img/ch09_agent_ecosystem_triad.png)
 
 ---
 
@@ -200,13 +166,7 @@ flowchart TD
 
 **Google Antigravity 2.0** 是一個以 **Agent（代理人）** 為核心的開放平台。平台底層採用統一的 Agent Engine（具備 Reasoning、Tool Calling、MCP 協議、Skills 與 Subagents），並針對不同工作場景提供了四大 **Surfaces（操作介面）**：
 
-```mermaid
-flowchart TD
-    Engine["Antigravity 2.0 Core Agent Engine<br/>(Reasoning + Tools + Memory + MCP + Subagents)"] --> Desktop["Desktop GUI<br/>Project 視覺化管理與 Artifacts 觀察 (初學者推薦)"]
-    Engine --> CLI["agy CLI<br/>Terminal 命令行、SSH & 自動化 CI/CD"]
-    Engine --> IDE["Antigravity IDE<br/>VS Code / JetBrains 代碼編輯器深度整合"]
-    Engine --> SDK["Python SDK<br/>自訂 Agent 開發與企業系統整合"]
-```
+![Google Antigravity 2.0 多介面架構 (Core Agent Engine 與四大 Surfaces)](img/ch09_antigravity_surfaces.png)
 
 | Surface | 介面型態 | 主要工程用途與適用情境 |
 | :--- | :--- | :--- |
@@ -221,14 +181,7 @@ flowchart TD
 
 與傳統「開啟新聊天室」不同，Antigravity 以 **Project（專案）** 作為 Agent 的工作邊界。一個 Project 會綁定本地電腦上的一個特定資料夾（Folder）。
 
-```mermaid
-flowchart TD
-    P1["1. 建立 Project & 指定 Local Folder"] --> P2["2. Agent 初始化並讀取 Workspace Context"]
-    P2 --> P3["3. 使用者交辦任務 (Goal)"]
-    P3 --> P4["4. Agent 進行 ReAct 推理與工具調用 (Tool Calls)"]
-    P4 --> P5["5. 本地檔案修改 (Write File) 與 Observation 驗證"]
-    P5 --> P6["6. 更新 Project 狀態與交付 Artifacts"]
-```
+![Antigravity Project 導向任務執行流程](img/ch09_project_workflow.png)
 
 #### Project 運作三大工程原則：
 1. **Workspace Boundary：** Agent 預設將該資料夾視為獨立世界，絕不跨越資料夾操作無關檔案。
@@ -309,12 +262,7 @@ flowchart TD
 
 在 **Antigravity 2.0 Desktop** 介面中，系統為了提升 UI 可讀性與教學流暢度，會將底層的 `view_file`、`write_to_file` 或 `run_command` 等程式碼層級函數呼叫，自動抽象包裝為直觀的 **高階動作標籤（Action Pills & Foldouts）**：
 
-```mermaid
-flowchart TD
-    UIAction["Desktop UI 視覺化動作標籤 (Action Pills)"] --> Explored["Explored / Analyzed<br/>對應底層: list_dir, view_file, find_by_name"]
-    UIAction --> Edited["Edited / Created<br/>對應底層: write_to_file, replace_file_content"]
-    UIAction --> Ran["Ran<br/>對應底層: run_command (Shell 命令)"]
-```
+![Antigravity Desktop UI 視覺化動作標籤與底層工具對照](img/ch09_ui_action_pills.png)
 
 #### 視覺化動作標籤對照表：
 - **`Explored` / `Analyzed`** ── 表示 Agent 正在探測專案目錄或閱讀檔案內容（對應底層 `list_dir`, `find_by_name`, `view_file`）。
@@ -366,21 +314,7 @@ flowchart TD
 
 ### Agent Runtime 系統架構整合圖
 
-```mermaid
-graph TD
-    UserGoal["使用者高階目標 (Goal)"] --> AntigravityDesktop["Antigravity 2.0 Desktop / CLI Surface"]
-    AntigravityDesktop --> AgentEngine["Core Agent Engine (LLM Reasoning)"]
-
-    subgraph WorkspaceBoundary["Project Workspace 安全邊界 (Local Directory)"]
-        AgentEngine <--> ToolSet["Local Tools (view_file / write_to_file / run_command)"]
-        ToolSet <--> LocalFiles["Project 檔案與程式碼 (hello.py / COURSE_INDEX.md)"]
-    end
-
-    AgentEngine <--> MemoryContext["Project Context & Trajectory History"]
-    ToolSet --> ObservationResult["Observation (檔案狀態與執行結果)"]
-    ObservationResult --> AgentEngine
-    AgentEngine --> FinalArtifact["交付終端 Artifacts (完成專案任務)"]
-```
+![Agent Runtime 系統架構整合圖](img/ch09_runtime_system_architecture.png)
 
 ---
 
